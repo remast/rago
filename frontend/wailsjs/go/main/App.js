@@ -6,6 +6,10 @@ export function ChangeStation() {
   return window['go']['main']['App']['ChangeStation']();
 }
 
+export function GetStations() {
+  return window['go']['main']['App']['GetStations']();
+}
+
 export function GetVolume() {
   return window['go']['main']['App']['GetVolume']();
 }

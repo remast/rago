@@ -20,6 +20,19 @@ type App struct {
 	player     *oto.Player
 }
 
+type Station struct {
+	Name string `json:"name"`
+	URL  string `json:"url"`
+}
+
+var stations []Station
+
+func init() {
+	stations = []Station{
+		{Name: "delta radio", URL: "http://streams.deltaradio.de/delta-live/mp3-192/mediaplayerdeltaradio"},
+	}
+}
+
 // NewApp creates a new App application struct
 func NewApp() *App {
 	return &App{
@@ -32,6 +45,10 @@ func NewApp() *App {
 // so we can call the runtime methods
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
+}
+
+func (a *App) GetStations() []Station {
+	return stations
 }
 
 // Greet returns a greeting for the given name
@@ -73,7 +90,6 @@ func (a *App) Start() {
 	}
 
 	// Decode file
-	fmt.Println("Decoding")
 	decodedMp3, err := mp3.NewDecoder(resp.Body)
 	if err != nil {
 		panic("mp3.NewDecoder failed: " + err.Error())
@@ -94,7 +110,6 @@ func (a *App) Start() {
 		audioBitDepth := 2
 
 		// Remember that you should **not** create more than one context
-		fmt.Println("Set up context")
 		otoCtx, readyChan, err := oto.NewContext(samplingRate, numOfChannels, audioBitDepth)
 		a.otoCtx = otoCtx
 
