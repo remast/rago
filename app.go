@@ -12,13 +12,16 @@ import (
 // App struct
 type App struct {
 	ctx    context.Context
-	player oto.Player
+	volume float64
 	otoCtx *oto.Context
+	player *oto.Player
 }
 
 // NewApp creates a new App application struct
 func NewApp() *App {
-	return &App{}
+	return &App{
+		volume: 1,
+	}
 }
 
 // startup is called when the app starts. The context is saved
@@ -28,14 +31,24 @@ func (a *App) startup(ctx context.Context) {
 }
 
 // Greet returns a greeting for the given name
-func (a *App) Greet(name string) string {
-	return fmt.Sprintf("Hello %s, It's show time!", name)
+func (a *App) SetVolume(volume float64) {
+	a.volume = volume
+
+	if a.player == nil {
+		return
+	}
+
+	(*a.player).SetVolume(volume)
+}
+
+func (a *App) GetVolume() float64 {
+	return a.volume
 }
 
 func (a *App) Stop() {
 	fmt.Println("Stoppin")
 
-	err := a.player.Close()
+	err := (*a.player).Close()
 	if err != nil {
 		fmt.Println("player.Close failed: " + err.Error())
 	}
@@ -57,7 +70,6 @@ func (a *App) Start() {
 	}
 
 	if a.otoCtx == nil {
-
 		// Prepare an Oto context (this will use your default audio device) that will
 		// play all our sounds. Its configuration can't be changed later.
 
@@ -81,13 +93,13 @@ func (a *App) Start() {
 		}
 
 		// It might take a bit for the hardware audio devices to be ready, so we wait on the channel.
-		fmt.Println("Waiting")
 		<-readyChan
 	}
 
 	player := a.otoCtx.NewPlayer(decodedMp3)
-	a.player = player
+	a.player = &player
+
+	player.SetVolume(a.volume)
 
 	player.Play()
-
 }

@@ -1,15 +1,14 @@
 <script lang="ts">
-  import { Greet, Start, Stop } from "../wailsjs/go/main/App.js";
+  import { Start, Stop, SetVolume, GetVolume } from "../wailsjs/go/main/App.js";
   import { Icon, Stop as StopIcon, Play } from "svelte-hero-icons";
+  import { onMount } from "svelte";
 
   let resultText: string = "Please enter your name below 👇";
   let name: string;
 
   let playing = false;
 
-  function greet(): void {
-    Greet(name).then((result) => (resultText = result));
-  }
+  let volume = 100;
 
   function play(): void {
     Start().then(() => (playing = true));
@@ -18,6 +17,14 @@
   function stop(): void {
     Stop().then(() => (playing = false));
   }
+
+  function onVolumeChanged() {
+    SetVolume(volume / 100);
+  }
+
+  onMount(async () => {
+    GetVolume().then(() => (this.volume = volume));
+  });
 </script>
 
 <main>
@@ -30,6 +37,15 @@
       <Icon src={Play} mini solid />
     </button>
   {/if}
+
+  <input
+    bind:value={volume}
+    on:change={onVolumeChanged}
+    type="range"
+    min="0"
+    max="100"
+    class="range"
+  />
 </main>
 
 <style>
