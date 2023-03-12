@@ -1,26 +1,35 @@
 <script lang="ts">
-  import logo from "./assets/images/logo-universal.png";
   import { Greet, Start, Stop } from "../wailsjs/go/main/App.js";
+  import { Icon, Stop as StopIcon, Play } from "svelte-hero-icons";
 
   let resultText: string = "Please enter your name below 👇";
   let name: string;
+
+  let playing = false;
 
   function greet(): void {
     Greet(name).then((result) => (resultText = result));
   }
 
   function play(): void {
-    Start();
+    Start().then(() => (playing = true));
   }
 
   function stop(): void {
-    Stop();
+    Stop().then(() => (playing = false));
   }
 </script>
 
 <main>
-  <button class="btn btn-primary" on:click={play}>Play</button>
-  <button class="btn btn-primary" on:click={stop}>Stop</button>
+  {#if playing}
+    <button class="btn btn-primary animate-pulse" on:click={stop}>
+      <Icon src={StopIcon} mini solid />
+    </button>
+  {:else}
+    <button class="btn btn-primary" on:click={play}>
+      <Icon src={Play} mini solid />
+    </button>
+  {/if}
 </main>
 
 <style>
