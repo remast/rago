@@ -9,18 +9,22 @@ import (
 	"github.com/hajimehoshi/oto/v2"
 )
 
+//
+
 // App struct
 type App struct {
-	ctx    context.Context
-	volume float64
-	otoCtx *oto.Context
-	player *oto.Player
+	ctx        context.Context
+	stationURL string
+	volume     float64
+	otoCtx     *oto.Context
+	player     *oto.Player
 }
 
 // NewApp creates a new App application struct
 func NewApp() *App {
 	return &App{
-		volume: 1,
+		volume:     1,
+		stationURL: "http://streams.deltaradio.de/delta-live/mp3-192/mediaplayerdeltaradio",
 	}
 }
 
@@ -45,19 +49,25 @@ func (a *App) GetVolume() float64 {
 	return a.volume
 }
 
+func (a *App) ChangeStation() {
+	a.Stop()
+	a.stationURL = "http://streams.radiobob.de/bob-live/mp3-192/mediaplayer"
+	a.Start()
+}
+
 func (a *App) Stop() {
 	fmt.Println("Stoppin")
 
-	err := (*a.player).Close()
-	if err != nil {
-		fmt.Println("player.Close failed: " + err.Error())
+	if a.player == nil {
+		return
 	}
+	(*a.player).Close()
 }
 
 func (a *App) Start() {
 
 	fmt.Println("Starting")
-	resp, err := http.Get("http://streams.deltaradio.de/delta-live/mp3-192/mediaplayerdeltaradio")
+	resp, err := http.Get(a.stationURL)
 	if err != nil {
 		panic("reading my-file.mp3 failed: " + err.Error())
 	}
